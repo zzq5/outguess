@@ -436,7 +436,7 @@ compress_JPEG (image *image)
   cinfo.image_width = image->x; 	/* image width and height, in pixels */
   cinfo.image_height = image->y;
   cinfo.input_components = image->depth;/* # of color components per pixel */
-  cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+  cinfo.in_color_space = image->depth == 3?JCS_RGB:JCS_GRAYSCALE; 	/* colorspace of input image */
 
   jpeg_set_defaults(&cinfo);
 
@@ -444,7 +444,7 @@ compress_JPEG (image *image)
 
   jpeg_start_compress(&cinfo, TRUE);
 
-  row_stride = image->x * 3;	/* JSAMPLEs per row in image_buffer */
+  row_stride = image->x * image->depth;	/* JSAMPLEs per row in image_buffer */
 
   while (cinfo.next_scanline < cinfo.image_height) {
     row_pointer[0] = & image->img[cinfo.next_scanline * row_stride];
@@ -512,7 +512,7 @@ write_JPEG_file (FILE *outfile, image *image)
   cinfo.image_width = image->x; 	/* image width and height, in pixels */
   cinfo.image_height = image->y;
   cinfo.input_components = image->depth;/* # of color components per pixel */
-  cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+  cinfo.in_color_space = image->depth == 3?JCS_RGB:JCS_GRAYSCALE; 	/* colorspace of input image */
   /* Now use the library's routine to set default compression parameters.
    * (You must set at least cinfo.in_color_space before calling this,
    * since the defaults depend on the source color space.)
@@ -538,7 +538,7 @@ write_JPEG_file (FILE *outfile, image *image)
    * To keep things simple, we pass one scanline per call; you can pass
    * more if you wish, though.
    */
-  row_stride = image->x * 3;	/* JSAMPLEs per row in image_buffer */
+  row_stride = image->x * image->depth;	/* JSAMPLEs per row in image_buffer */
 
   while (cinfo.next_scanline < cinfo.image_height) {
     /* jpeg_write_scanlines expects an array of pointers to scanlines.
